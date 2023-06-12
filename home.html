@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!------------------------META TAGs and TITLE--------------->
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Social Network</title>
+    <!--------------------------------     CSS    --------------------------------------------------->
+    <link type="text/css" rel="stylesheet" href="css/home.css">
+    <link type="text/css" rel="stylesheet" href="css/modal.css">
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css">
+  </head>
+  <body>
+    <section id="home">
+      <header>
+        <div class="container">
+          <div class="left">
+            <a href="home.html" class="logo">Spy2901</a>
+            <div class="hm-menu">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+          </div>
+          <div class="right">
+            <nav>
+              <ul>
+                <li><a href="#home">Home</a></li>
+                <li><a href="#services">Services</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#portfolio">Portfolio</a></li>
+                <li><a href="logout.php">Log out</a></li>
+              </ul>
+            </nav>
+          </div>
+        </div>
+      </header>
+    </section>
+    <div class="user-data userdata">
+      <div class="flex-home">
+        <img src='images/mc senna 4.jpg' class='pfp'  alt='slika nije ucitana'>
+        <span class="green">spy2901</span>
+      </div>
+      <button class="btn btn-open">Make Post</button>
+    </div>
+  <section class="modal hidden">
+        <div class="flex"> 
+            <img src='images/mc senna 4.jpg' class='pfp'  alt='slika nije ucitana'>
+         <h3>spy2901</h3>
+          <button class="btn-close">⨉</button>
+        </div>
+        <form action="#" method="post">
+          <div class="sirina">
+            <input type="text" id="text" name="naslov" placeholder="TITLE OF THE POST" maxlenght="30" required/>
+            <textarea type="text" id="myTextarea" name="postdesc" maxlength="255" rows="10" required placeholder="Enter post text"></textarea>
+          </div>
+          <div class="brkaraktera"><span id="lengthSpan">0</span><span>/255</span></div>
+          <input type="submit" class="btn" value="Make post">
+        </form>
+  </section>
+      <div class="overlay hidden"></div>
+    <script  src="./js/index.js"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="js/custom.js"></script>
+  </body>
+</html>
