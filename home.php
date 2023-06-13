@@ -42,6 +42,8 @@
     </script>
     <?php 
     }
+
+    $posts = get_post();
 ?>
 
 
@@ -88,11 +90,13 @@
     </section>
     
     <br><br><br><br><br>
-    <div class="user-data userdata">
-      <?php display_pfp($username);?>  
-      <span class="green"><?php echo $username; ?></span>
-      <!---->
-    </div><button class="btn btn-open">Make Post</button>
+    <div class="userdata-postMaker">
+      <div class="user-data userdata">
+        <?php display_pfp($username);?>  
+        <span class="green"><?php echo $username; ?></span>
+        <!---->
+      </div><button class="btn btn-open">Make Post</button>
+  </div>    
   <section class="modal hidden">
         <div class="flex"><?php 
           display_pfp($username);
@@ -110,8 +114,25 @@
           <input type="submit" class="btn" value="Make post">
         </form>
   </section>
-      <div class="overlay hidden"></div>
-    <script  src="./js/index.js"></script>
+  <div class="overlay hidden"></div>
+  <!-- Added June 12 20223-->
+  <section name='posts'>
+    <?php foreach ($posts as $post){
+      echo '
+    <div class="post">
+      <div class="user-info">
+      <div class="profile-picture">'; display_pfp($post['username']); echo'</div>
+      <h3 class="username">'. $username.'</h3>
+      </div>
+      <div class="post-content">
+        <h2 class="post-title">'.$post['naslov'].'</h2>
+        <p class="post-description">'.$post['post_desc'].'</p>
+      </div>
+    </div>';
+    }?>
+
+  </section>
+  <script  src="./js/index.js"></script>
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script src="js/custom.js"></script>
   </body>
