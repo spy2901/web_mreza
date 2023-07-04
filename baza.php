@@ -7,6 +7,8 @@
         $konekcija = mysqli_connect("localhost", "root", "", "social_network");
         if($konekcija == false){
             die("Greska pri konektovanju na bazu"); // Error message if connection fails
+        }else{
+            return true;
         }
     }
 
@@ -114,7 +116,6 @@
             return false;
         }
     }
-
 
   function get_post(){
     global $konekcija;

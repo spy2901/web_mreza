@@ -53,8 +53,9 @@ button {
 }
 
 .btn-open {
-  position: absolute;
-  bottom: 350px;
+  width: 135px;
+  border-radius: 25px;
+  margin-top: 25px;
 }
 
 .btn-close {
