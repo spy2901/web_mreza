@@ -91,7 +91,8 @@
     <div class="sidebarUserinfo">
       <div class="userdata-postMaker">
         <div class="user-data userdata">
-          <?php display_pfp($username);?>  
+          <div class="divPfp">
+          <?php display_pfp($username);?>  </div>
           <span class="green"><?php echo $username; ?></span>
           <!---->
         </div><button class="btn btn-open">Make Post</button>

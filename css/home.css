@@ -344,9 +344,14 @@ header.h-100 ul{
 
 
 /*KRAJ JEBENOG NAVBARA*/
-.pfp{
+.divPfp{
   width:100px;
   height:100px;
+}
+
+.pfp{
+  width: 100%;
+  height: 100%;
   border-radius:50%;
   border: 3px solid;
   border-color: var(--black);
@@ -464,4 +469,8 @@ header.h-100 ul{
 
 .sidebarUserinfo{
   position: fixed;
+}
+
+section[name="posts"]{
+  margin-top: 75px;
 }

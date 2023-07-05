@@ -23,30 +23,35 @@
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css">
   </head>
   <body>
-    <section id="home">
-      <header>
-        <div class="container">
-          <div class="left" style="text-transform: uppercase;">
-            <a href="#" class="logo"><?php echo $username?></a>
-            <div class="hm-menu">
-              <span></span>
-              <span></span>
-              <span></span>
+    <section name="profle">
+      <section id="navbar">
+        <header>
+          <div class="container">
+            <div class="left" style="text-transform: uppercase;">
+              <a href="#" class="logo"><?php echo $username?></a>
+              <div class="hm-menu">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+            </div>
+            <div class="right">
+              <nav>
+                <ul>
+                  <li><a href="home.php">Home</a></li>
+                  <li><a href="#services">Services</a></li>
+                  <li><a href="#about">About</a></li>
+                  <li><a href="profile.php">My Profile</a></li>
+                  <li><a href="logout.php">Log out</a></li>
+                </ul>
+              </nav>
             </div>
           </div>
-          <div class="right">
-            <nav>
-              <ul>
-                <li><a href="home.php">Home</a></li>
-                <li><a href="#services">Services</a></li>
-                <li><a href="#about">About</a></li>
-                <li><a href="profile.php">My Profile</a></li>
-                <li><a href="logout.php">Log out</a></li>
-              </ul>
-            </nav>
-          </div>
-        </div>
-      </header>
-    </section>
+        </header>
+      <section name="profile">
+        <img src="" alt="">
+      </section>
+      </section>
+  </section>
 </body>
 </html>

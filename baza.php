@@ -117,17 +117,17 @@
         }
     }
 
-  function get_post(){
-    global $konekcija;
-    $sqlQuerry = "SELECT users.username, posts.* FROM users JOIN posts ON users.id = posts.post_creator;";
-    
-    $rezultat = mysqli_query($konekcija, $sqlQuerry);
-    
-    if($rezultat == false){
-        die('Greska pri dohvatanju svih korisnika' . mysqli_error($konekcija));
+    function get_post(){
+        global $konekcija;
+        $sqlQuerry = "SELECT users.username, posts.* FROM users JOIN posts ON users.id = posts.post_creator;";
+        
+        $rezultat = mysqli_query($konekcija, $sqlQuerry);
+        
+        if($rezultat == false){
+            die('Greska pri dohvatanju svih korisnika' . mysqli_error($konekcija));
+        }
+        
+        return mysqli_fetch_all($rezultat, MYSQLI_ASSOC);
+        
     }
-    
-    return mysqli_fetch_all($rezultat, MYSQLI_ASSOC);
-    
-  }
 ?>
