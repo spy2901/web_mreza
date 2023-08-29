@@ -5,24 +5,25 @@
     {
       header('location: index.php');
     }
-    konekcija();
+    conn();
     $username = $_SESSION['username'];
+    
     if(isset($_POST["naslov"]))
     {   
         $naslov = $_POST["naslov"];
         $postdesc = $_POST["postdesc"];
         create_post($username, $naslov, $postdesc);
     ?>    
-      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+     <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
       <script>
       $(document).ready(function(){
         $('form').submit(function(event) {
           event.preventDefault(); // Prevent the form from submitting normally
           
-          var data = $($this).serialize() + '&username' + <?php echo json_encode($username);?>;
+          var data = $($this).serialize() + '&username' + <?php // echo json_encode($username);?>;
           var params = {
-            param1: <?php echo json_encode($naslov); ?>,
-            param2: <?php echo json_encode($postdesc); ?>
+            param1: <?php // echo json_encode($naslov); ?>,
+            param2: <?php // echo json_encode($postdesc); ?>
           };
           data += '&' + $.param(params); // Add the parameters to the serialized form data
           
@@ -34,16 +35,19 @@
             success: function(response) {
               // If the submission was successful, update the page content here
               console.log(response); // Debugging
-              console.warn("jebeno radi");
+              console.log("jebeno radi");
             }
           });
         });
       });
-    </script>
+    </script>-->
     <?php 
     }
 
-    $posts = get_post();
+    if(isset($_POST["postID"])){
+      $postId = $_POST["postID"];
+      delete_post($postId);
+    }
 ?>
 
 
@@ -61,6 +65,7 @@
     <link type="text/css" rel="stylesheet" href="css/modal.css">
     <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css">
+    <script src="https://kit.fontawesome.com/47e60dfc20.js" crossorigin="anonymous"></script>
   </head>
   <body>
     <section id="home">
@@ -92,20 +97,23 @@
       <div class="userdata-postMaker">
         <div class="user-data userdata">
           <div class="divPfp">
-          <?php display_pfp($username);?>  </div>
+          <?php display_pfp($username);?> 
+         </div>
           <span class="green"><?php echo $username; ?></span>
           <!---->
         </div><button class="btn btn-open">Make Post</button>
       </div>
   </div>    
   <section class="modal hidden">
-        <div class="flex"><?php 
-          display_pfp($username);
+        <div class="flex">
+          <div class="divPfp">
+          <?php display_pfp($username);?> 
+         </div><?php 
           echo "<h3>".$username."</h3>";
           ?>
           <button class="btn-close">⨉</button>
         </div>
-        <form action="#" method="post">
+        <form action="" method="post">
           <div class="sirina">
             <span name='<?php $username?>' style="display:none;"></span>
             <input type="text" id="text" name="naslov" placeholder="TITLE OF THE POST" maxlenght="30" required/>
@@ -119,26 +127,51 @@
   <!-- Added June 12 20223-->
   <section name='posts'>
     <?php 
-    foreach ($posts as $post){
-      echo '
-    <div class="post">
+    $posts = get_post();
+  $Post= '
+  <div class="post">
+    <div class="post-header">
       <div class="user-info">
-      <div class="profile-picture">'; 
-        display_pfp($post['username']); 
-      echo'</div>
-      <h3 class="username">'. $post['username'].'</h3>
-      </div>
-      <div class="post-content">
-        <h2 class="post-title">'.$post['naslov'].'</h2>
-        <p class="post-description">'.$post['post_desc'].'</p>
-      </div>
-    </div>';
+        <div class="profile-picture">';
+
+    foreach ($posts as $post){
+      echo $Post;
+          display_pfp($post['username']); 
+          echo '
+          </div>
+          <h3 class="username">'. $post['username'] .'</h3>
+          </div>';
+          if($post['username'] == $username){
+
+            echo '
+              <form id="myForm" action="" method="post">
+                <input type="hidden" name="postID" value='; echo $post['id'].'>
+              </form>
+                <div class="dropdown">
+                <button class="dropdown-button">...</button>
+                <div class="dropdown-content proportional-dropdown">
+                  <a href="" id="delete_post">delete post <i class="fa-solid fa-trash fa-beat-fade"></i></a>
+                  <a href="?">two</a>
+                  <a href="?">trhee</a>
+                </div>
+              </div>';
+            }
+            echo'</div>
+              <div class="post-content">
+                  <h2 class="post-title">' . $post['post_title'] . '</h2>
+                  <p class="post-description">' . $post['post_desc'] . '</p>
+              </div>
+          </div>'; 
+          
     }
     ?>
 
   </section>
+  
   <script  src="./js/index.js"></script>
-    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-    <script src="js/custom.js"></script>
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="js/custom.js"></script>
+
   </body>
 </html>

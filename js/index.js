@@ -37,3 +37,11 @@ textarea.addEventListener('input', () => {
   const length = textarea.value.length;
   lengthSpan.innerText = length;
 });
+/* Post DropDrown */
+document.getElementById("delete_post").addEventListener("click", function(event) {
+  event.preventDefault(); // Prevent the link from navigating
+  
+  // Find the form and submit it
+  var form = document.getElementById("myForm");
+  form.submit();
+});

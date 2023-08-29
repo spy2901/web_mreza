@@ -1,5 +1,6 @@
 :root {
   --gray: #808080;
+  --gray-2: #929292;
   --black: #000;
   --white: #fff;
   --green: #91f600;
@@ -374,7 +375,6 @@ header.h-100 ul{
 #myTextarea{
   resize: none;
   font-size: 19px;
-  text-transform: uppercase;
   width: 100%;
   margin-top: 5px;
 }
@@ -401,7 +401,7 @@ header.h-100 ul{
   font-weight: 400;
 }
 /*12.6.2023*/
-/*added post style*/
+/*added post style*/ 
 .post {
   width: 400px;
   margin: 20px;
@@ -413,10 +413,9 @@ header.h-100 ul{
 .user-info {
   display: flex;
   align-items: center;
-  margin-bottom: 10px;
   padding: 10px;
-  background-color: var(--white);
 }
+
 
 .user-info img {
   width: 40px;
@@ -458,7 +457,7 @@ header.h-100 ul{
   width: 50px;
   height: 50px;
   border-radius: 50%;
-  object-fit: cover;
+  
 }
 
 .userdata-postMaker{
@@ -467,10 +466,74 @@ header.h-100 ul{
 }
 
 
+
 .sidebarUserinfo{
   position: fixed;
 }
 
 section[name="posts"]{
   margin-top: 75px;
+}
+
+.post-header {
+  width: 100%;
+  background-color: var(--white);
+  display: flex;
+  justify-content: space-between;
+  align-items: center; /*vertically align the elements */
+}
+/* DROPDOWN MENU*/
+/* Added 8.10.2023 */ 
+.dropdown {
+  position: relative;
+  padding:15px;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  width: 150px; /* Adjust the width as needed */
+  top: 100%; /* Position the dropdown below the button */
+  right: 0; /* Align the dropdown to the right */
+  background-color: white; /* Adjust background color */
+  box-shadow: 0px 10px 10px 0px rgba(0, 0, 0, 0.4);
+}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+.dropdown-content a {
+  display: block;
+  color: #000000;
+  padding: 5px;
+  margin-right: 5px;
+  text-decoration: none;
+  text-align: center;
+  width: 100%;
+  height: 100%;
+  background-color: var(--gray-2);
+}
+.dropdown-content a:hover {
+  color: #FFFFFF;
+  background-color: var(--gray);
+}
+/* Dropdown menu button*/ 
+.dropdown-button {/* dfdfdf */
+  background-color: #cccccc;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background-color 0.3s ease-in-out;
+}
+
+.dropdown-button:hover {
+  background-color: var(--gray);
+  color: var(--black);
 }

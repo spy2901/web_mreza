@@ -4,7 +4,7 @@
     
     if($_SERVER["REQUEST_METHOD"]=="POST")
     {   
-        konekcija(); 
+        conn(); 
         $username = $_POST["username"];
         $password = $_POST["password"];
         login($username,$password);

@@ -5,7 +5,7 @@
        if ($_POST["password"] == $_POST["pass"]) {
 
             // Database related code
-           konekcija();
+           conn();
            $username = $_POST["username"];
            $password = $_POST["password"];
            $email1 = $_POST["email"];

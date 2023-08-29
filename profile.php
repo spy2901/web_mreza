@@ -5,7 +5,7 @@
     {
       header('location: index.php');
     }
-    konekcija();
+    conn();
     $username = $_SESSION['username'];
 ?>
 <!DOCTYPE html>
