@@ -127,7 +127,8 @@
         $sql = "DELETE FROM posts WHERE id= '$postID'";
         $rezultat = mysqli_query($conn,$sql);
         if ($rezultat) {
-            echo "<script>console.log('200')</script>";
+           return true;
+            // echo "<script>console.log('200')</script>";
         } else {
             return false;
         }
@@ -140,6 +141,7 @@
     */
     function get_post(){
         global $conn;
+        // sql Querry to get username from table users and everithing from table posts
         $sqlQuerry = "SELECT users.username, posts.* FROM users JOIN posts ON users.id = posts.post_creator;";
         
         $rezultat = mysqli_query($conn, $sqlQuerry);
