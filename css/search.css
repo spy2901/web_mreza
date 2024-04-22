@@ -1,0 +1,19 @@
+section[name="search"] {
+  display: flex;
+  flex-direction: column;
+}
+
+form {
+  margin-top: 6vw;
+}
+
+input[type="text"] {
+  border: none;
+  font-size: 2rem;
+  padding: 2rem;
+}
+
+
+#searchResults {
+  margin-top: auto;
+}
