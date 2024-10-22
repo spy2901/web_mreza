@@ -5,7 +5,10 @@ if (!isset($_SESSION['username'])) {
     header('location: index.php');
 }
 $username = $_SESSION['username'];
-$sent_username = $_POST['$username']
+$sent_username = $_POST['username'];
+/*if(empty($sent_username)){
+    echo'<script>console.log("cao")</script>';
+}*/
 ?>
 <!DOCTYPE html>
 <html lang="en">

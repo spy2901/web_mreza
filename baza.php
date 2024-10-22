@@ -299,7 +299,7 @@ if(isset($_POST['query'])) {
 
         if ($result) {
             if (mysqli_num_rows($result) > 0) {
-                echo "<form action='' method='get' name='search'>";
+                echo "<form action='' method='post' name='search'>";
                 while ($row = mysqli_fetch_assoc($result)) {
                     echo "<input type='submit' name='username' value='".$row['username']."' />";
                 }

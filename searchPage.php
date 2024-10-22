@@ -5,9 +5,9 @@ if (!isset($_SESSION['username'])) {
     header('location: index.php');
 }
 $username = $_SESSION['username'];
-if($_SERVER["REQUEST_METHOD"] =="GET"){
+if($_SERVER["REQUEST_METHOD"] =="POST"){
     if(isset($_POST["username"])){
-        header('location: findFrend.php?username='.$_POST['username']);
+        header('location: findFrend.php');
     }
 }
 ?>
