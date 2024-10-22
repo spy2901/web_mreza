@@ -1,20 +1,36 @@
 <?php
-require_once 'baza.php';
-session_start();
-if (!isset($_SESSION['username'])) {
-    header('location: index.php');
-}
-$username = $_SESSION['username'];
-$sent_username = $_POST['username'];
-/*if(empty($sent_username)){
-    echo'<script>console.log("cao")</script>';
-}*/
+    require_once 'baza.php';
+    session_start();
+    if (!isset($_SESSION['username'])) {
+        header('location: index.php');
+    }
+    // loged user
+    $username = $_SESSION['username'];
+    // user from searchPage.php that user wants to view profile
+    $sent_username = $_POST['username'];
+    conn();
+
+    // Check if the user is already following the other user
+    $isFollowing = checkIfFollowing($username, $sent_username);
+
+    // Handle follow/unfollow form submission
+    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+        if (isset($_POST['follow'])) {
+            $result = followUser($username, $sent_username);
+        } elseif (isset($_POST['unfollow'])) {
+            $result = unfollowUser($username, $sent_username);
+        }
+        disconnect();
+        // echo "<script>alert('" . $result . "');</script>";
+        // Refresh page to update button status
+        // echo "<script>location.reload();</script>";
+    }
 ?>
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-    <!------------------------META TAGs and TITLE--------------->
+    <!------------------------ META TAGs and TITLE--------------->
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -45,7 +61,7 @@ $sent_username = $_POST['username'];
                             <ul>
                                 <li><a href="home.php">Home</a></li>
                                 <li><a href="searchPage.php">Find Frends</a></li>
-                                <li><a href="#about">About</a></li>
+                                <li><a href="chat.php">Chat</a></li>
                                 <li><a href="profile.php">My Profile</a></li>
                                 <li><a href="logout.php">Log out</a></li>
                             </ul>
@@ -91,8 +107,14 @@ $sent_username = $_POST['username'];
               </div>';
                     ?>
                     <form action="" method="post" id="follow user">
-                        <?php echo '<input type="hidden" name="username1" value="' . $userInfo["username"] . '" required/> '; ?>
-                        <input type="submit" name="follow" value="Follow User">
+                    <input type="hidden" name="username" value="<?php echo htmlspecialchars($userInfo['username']); ?>" />
+                    <?php if ($isFollowing): ?>
+                            <!-- If following, show Unfollow button -->
+                            <input type="submit" name="unfollow" value="Unfollow User">
+                        <?php else: ?>
+                            <!-- If not following, show Follow button -->
+                            <input type="submit" name="follow" value="Follow User">
+                        <?php endif; ?>
                     </form>
                 </div>
         </section>
@@ -101,7 +123,7 @@ $sent_username = $_POST['username'];
 
     <!-- JAVASCRIPT AND JQUERY -->
     <script src="js/custom.js"></script>
-    <script src="js/search.js"></script>
+    <!-- <script src="js/search.js"></script> -->
 </body>
 
 </html>

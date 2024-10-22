@@ -6,3 +6,4 @@ current features:
 registring with image;
 making post;
 deleting posts;
+searching for other users;

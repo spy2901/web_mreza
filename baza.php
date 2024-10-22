@@ -1,15 +1,16 @@
 <?php
-
+/*
+ * Section dedicated to
+ * server configuration
+ */
 // Function to establish database connection
 function conn()
-{
+{   
     global $conn;
 
     $conn = mysqli_connect("localhost", "root", "root", "social_network");
-    if ($conn == false) {
-        die("Greska pri konektovanju na bazu"); // Error message if connection fails
-    } else {
-        return true;
+    if (!$conn) {
+        die("Greska pri konektovanju na bazu ". mysqli_connect_error() ); // Error message if connection fails
     }
 }
 
@@ -26,6 +27,7 @@ function disconnect()
  *
  * 
 **/
+
 // Function to register a new user
 function register($username, $email, $password, $image, $tmp_name)
 {
@@ -38,18 +40,18 @@ function register($username, $email, $password, $image, $tmp_name)
 
     $hashedpassword = password_hash($sredjenPass, PASSWORD_ARGON2ID); // Hashing the password using ARGON2ID algorithm
 
-    // Moving uploaded file to 'images/' folder
-
-    move_uploaded_file($tmp_name, "images/$image");
     $sqlUpit = "SELECT * FROM users WHERE username = '$sredjenUser'";
     $rezultat = mysqli_query($conn, $sqlUpit);
     if ($rezultat == false) {
         die('Doslo je do greske pri registraciji korisnika'); // Error message if query fails
     }
-
+    
     if (mysqli_num_rows($rezultat) != 0) {
         header("location:index.php"); // Return false if user already exists
     }
+    // Moving uploaded file to 'images/' folder
+
+    move_uploaded_file($tmp_name, "images/$image");
 
     $sqlUpit = "INSERT INTO users VALUES(NULL,'$sredjenUser', '$hashedpassword','$sredjenEmail','" . $image . "')";
     $rezultat = mysqli_query($conn, $sqlUpit);
@@ -87,6 +89,7 @@ function login(string $username, string $password)
         header("location:home.php"); // Redirect to home.php after successful login
         exit; // Add exit to stop further execution
     } else {
+        echo "neuspesan login";
         // Password verification failed, redirect to login page
         header("location:index.php");
         exit; // Add exit to stop further execution
@@ -138,6 +141,61 @@ function updateUserInfo(string $username,string $email, string $bio)
         return false;
     }
 }
+/**
+ * 
+ *  get userid function 
+ * 
+ *
+*/function getUserID($username){
+    global $conn;
+
+    $sql = "SELECT id FROM users WHERE username = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $username);  // Bind username as a string
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    if ($row = $result->fetch_assoc()) {
+        return $row['id'];
+    }
+    
+    return null;  // Return null if user not found
+}
+/*
+*/
+function fetch_following_users($userId){
+    global $conn;
+
+    // Check if connection is established
+    if ($conn === null) {
+        die("Database connection not established.");
+    }
+
+    $stmt = $conn->prepare("
+        SELECT u.id, u.username 
+        FROM following f 
+        JOIN users u ON f.following_user_id = u.id 
+        WHERE f.user_id = ?
+    ");
+
+    // Check if prepare() succeeded
+    if ($stmt === false) {
+        die("SQL Prepare failed: (" . $conn->errno . ") " . $conn->error);
+    }
+
+    $stmt->bind_param("i", $userId);  // Now using user ID instead of username
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    $followedUsers = [];
+    while ($row = $result->fetch_assoc()) {
+        $followedUsers[] = $row; // Store followed user's id and username
+    }
+
+    $stmt->close();
+    return $followedUsers;
+}
+
 /**
  * Delete user function
  * delete user from database takes 
@@ -194,6 +252,115 @@ function display_pfp(string $username)
     return "";
 }
 
+/**
+ * 
+ * @param userOne username who wants to follow
+ * @param userTwo username that will be followed by userOne
+ * 
+ */
+function followUser(string $userOne, string $userTwo){
+    global $conn;
+
+    // Fetch userOne's id
+    $userOne = mysqli_real_escape_string($conn, $userOne);
+    $sqlUpit = "SELECT id FROM users WHERE username='" . mysqli_real_escape_string($conn, $userOne) . "'";
+    $result1 = mysqli_query($conn, $sqlUpit);
+
+    if (mysqli_num_rows($result1) > 0) {
+        $row1 = mysqli_fetch_assoc($result1);
+        $userid1 = $row1['id'];
+    } else {
+        // Handle case when userOne does not exist
+        return "UserOne does not exist.";
+    }
+
+    // Fetch userTwo's id
+    $sqlUpit = "SELECT id FROM users WHERE username='" . mysqli_real_escape_string($conn, $userTwo) . "'";
+    $result2 = mysqli_query($conn, $sqlUpit);
+
+    if (mysqli_num_rows($result2) > 0) {
+        $row2 = mysqli_fetch_assoc($result2);
+        $userid2 = $row2['id'];
+    } else {
+        // Handle case when userTwo does not exist
+        return "UserTwo does not exist.";
+    }
+
+    // Check if the user is already following the other user
+    $sqlUpit = "SELECT * FROM following WHERE user_id='$userid1' AND following_user_id='$userid2'";
+    $result = mysqli_query($conn, $sqlUpit);
+    if (mysqli_num_rows($result) > 0) {
+        return "You are already following this user.";
+    }
+
+    // Insert new follow entry if not already following
+    $sqlUpit = "INSERT INTO following (user_id, following_user_id) VALUES ('$userid1', '$userid2')";
+    if (mysqli_query($conn, $sqlUpit)) {
+        return "Successfully followed " . $userTwo . ".";
+    } else {
+        return "Error: " . mysqli_error($conn);
+    }
+}
+
+function unfollowUser(string $userOne, string $userTwo){
+    global $conn;
+
+    // Fetch userOne's ID
+    $sqlUpit = "SELECT id FROM users WHERE username='" . mysqli_real_escape_string($conn, $userOne) . "'";
+    $result1 = mysqli_query($conn, $sqlUpit);
+    if ($row1 = mysqli_fetch_assoc($result1)) {
+        $userid1 = $row1['id'];
+    } else {
+        return "UserOne does not exist.";
+    }
+
+    // Fetch userTwo's ID
+    $sqlUpit = "SELECT id FROM users WHERE username='" . mysqli_real_escape_string($conn, $userTwo) . "'";
+    $result2 = mysqli_query($conn, $sqlUpit);
+    if ($row2 = mysqli_fetch_assoc($result2)) {
+        $userid2 = $row2['id'];
+    } else {
+        return "UserTwo does not exist.";
+    }
+
+    // Delete from the following table
+    $sqlUpit = "DELETE FROM following WHERE user_id='$userid1' AND following_user_id='$userid2'";
+    if (mysqli_query($conn, $sqlUpit)) {
+        return "Unfollowed UserTwo successfully.";
+    } else {
+        return "Error: " . mysqli_error($conn);
+    }
+}
+
+
+function checkIfFollowing(string $userOne, string $userTwo) {
+    global $conn;
+
+    // Fetch userOne's ID
+    $sqlUpit = "SELECT id FROM users WHERE username='" . mysqli_real_escape_string($conn, $userOne) . "'";
+    $result1 = mysqli_query($conn, $sqlUpit);
+    if ($row1 = mysqli_fetch_assoc($result1)) {
+        $userid1 = $row1['id'];
+    } else {
+        return false; // UserOne not found
+    }
+
+    // Fetch userTwo's ID
+    $sqlUpit = "SELECT id FROM users WHERE username='" . mysqli_real_escape_string($conn, $userTwo) . "'";
+    $result2 = mysqli_query($conn, $sqlUpit);
+    if ($row2 = mysqli_fetch_assoc($result2)) {
+        $userid2 = $row2['id'];
+    } else {
+        return false; // UserTwo not found
+    }
+
+    // Check if userOne is following userTwo
+    $sqlUpit = "SELECT * FROM following WHERE user_id='$userid1' AND following_user_id='$userid2'";
+    $result = mysqli_query($conn, $sqlUpit);
+
+    return mysqli_num_rows($result) > 0; // Returns true if the user is already following
+}
+
 // function searchUser($search)
 // {
 //     global $conn;
@@ -219,7 +386,7 @@ function display_pfp(string $username)
     * 
     *   SECTION DEDACTED FOR POST FUNCTIONS
     *
-    */
+*/
 // Function to create a new post
 function create_post($username, $param1, $param2)
 {
@@ -299,7 +466,7 @@ if(isset($_POST['query'])) {
 
         if ($result) {
             if (mysqli_num_rows($result) > 0) {
-                echo "<form action='' method='post' name='search'>";
+                echo "<form action='findFrend.php' method='post' name='search'>";
                 while ($row = mysqli_fetch_assoc($result)) {
                     echo "<input type='submit' name='username' value='".$row['username']."' />";
                 }
@@ -312,3 +479,5 @@ if(isset($_POST['query'])) {
         }
     }
 }
+
+

@@ -6,14 +6,25 @@ section[name="search"] {
 form {
   margin-top: 6vw;
 }
-
-input[type="text"] {
+input[type="submit"] {
+  align-self: center;
   border: none;
-  font-size: 2rem;
-  padding: 2rem;
+  font-size: 1rem;
+  padding: 1rem;
 }
 
+input:disabled{
+  color: black;
+}
+
+.searchbox{
+  bottom: none;
+  padding: 1rem;
+  font-size: 1rem;
+}
 
 #searchResults {
   margin-top: auto;
+  display: flex;
+  flex-direction: column;
 }

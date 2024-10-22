@@ -29,7 +29,7 @@ if($_SERVER["REQUEST_METHOD"] =="POST"){
 </head>
 
 <body>
-    <section name="profle">
+    <section name="searchforfrends">
         <section id="navbar">
             <header>
                 <div class="container">
@@ -46,7 +46,7 @@ if($_SERVER["REQUEST_METHOD"] =="POST"){
                             <ul>
                                 <li><a href="home.php">Home</a></li>
                                 <li><a href="searchPage.php">Find Frends</a></li>
-                                <li><a href="#about">About</a></li>
+                                <li><a href="chat.php">Chat</a></li>
                                 <li><a href="profile.php">My Profile</a></li>
                                 <li><a href="logout.php">Log out</a></li>
                             </ul>
@@ -60,7 +60,7 @@ if($_SERVER["REQUEST_METHOD"] =="POST"){
         </section>
         <section name="search">
             <form id="searchForm">
-                <input type="text" id="search" name="search" placeholder="Search users...">
+                <input type="text" id="search" class="searchbox" name="search" placeholder="Search users...">
             </form>
             <div id="searchResults"></div>
 

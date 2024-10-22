@@ -84,7 +84,7 @@
               <ul>
                 <li><a href="home.php">Home</a></li>
                 <li><a href="searchPage.php">Find Frends</a></li>
-                <li><a href="#about">About</a></li>
+                <li><a href="chat.php">Chat</a></li>
                 <li><a href="profile.php">My Profile</a></li>
                 <li><a href="logout.php">Log out</a></li>
               </ul>
@@ -151,8 +151,7 @@
                 <button class="dropdown-button">...</button>
                 <div class="dropdown-content proportional-dropdown">
                   <a href="" id="delete_post">delete post  <i class="fa-solid fa-trash fa-beat-fade"></i></a>
-                  <a href="?">two</a>
-                  <a href="?">three</a>
+                  
                 </div>
               </div>';
             }

@@ -57,7 +57,7 @@ if(isset($_SESSION['username'])){
               <ul>
                 <li><a href="home.php">Home</a></li>
                 <li><a href="searchPage.php">Find Frends</a></li>
-                <li><a href="#about">About</a></li>
+                <!-- <li><a href="#about">About</a></li> -->
                 <li><a href="profile.php">My Profile</a></li>
                 <li><a href="logout.php">Log out</a></li>
               </ul>

@@ -14,3 +14,4 @@ Set username = 'neca',email='nekimail@gmail.com',bio='neka biographija'
 where username='necaiduca';
 
 SELECT * FROM users WHERE username LIKE '%a%';
+
