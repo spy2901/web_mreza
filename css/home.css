@@ -5,6 +5,7 @@
   --white: #fff;
   --green: #91f600;
   --red: #ff2828;
+  --random-color: linear-gradient(to right, rgb(237, 34, 36), rgb(243, 91, 34), rgb(249, 150, 33), rgb(245, 193, 30), rgb(241, 235, 27) 27%, rgb(241, 235, 27), rgb(241, 235, 27) 33%, rgb(99, 199, 32), rgb(12, 155, 73), rgb(33, 135, 141), rgb(57, 84, 165), rgb(97, 55, 155), rgb(147, 40, 142));
 
   /* default colors*/
   --body-background: #fff;
@@ -41,7 +42,7 @@ body {
   min-height: 100vh;
   width: 100%;
   height: 100%;
-  font-family: "Open Sans", sans-serif;
+  font-family: "Times New Roman", sans-serif;
   background: #092756;
   background: -moz-radial-gradient(
       0% 100%,
@@ -482,8 +483,8 @@ header nav ul li a.active {
 }
 
 .post-description {
-  font-size: 16px;
-  color: #777;
+  font-size: 18px;
+  color: #979797;
   text-transform: lowercase;
 }
 .profile-picture {
@@ -497,7 +498,7 @@ header nav ul li a.active {
   height: 50px;
   border-radius: 50%;
 }
-
+/* 
 .userdata-postMaker {
   display: flex;
   flex-direction: column;
@@ -505,8 +506,86 @@ header nav ul li a.active {
 
 .sidebarUserinfo {
   position: fixed;
+} */
+/* Sidebar User Info Styles */
+.sidebarUserinfo {
+  position: fixed;
+  margin-top: 10%;
+  margin-left: 15%;
+  top: 20px; /* Distance from the top */
+  left: 20px; /* Distance from the left */
+  width: 250px; /* Adjust width as needed */
+  background-color: #f0f0f0;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  z-index: 10;
 }
 
+.userdata-postMaker {
+  display: flex;
+  flex-direction: column; /* Stack elements vertically */
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.user-data {
+  margin-top: auto;
+  display: flex;
+  padding: 5px;
+  width: 100%;
+  text-align: center;
+  flex-direction: row; /* Stack profile picture and username */
+  align-items: center;
+  margin-left: auto;
+  margin-bottom: 15px; /* Space between user info and button */
+}
+
+.divPfp {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  overflow: hidden;
+  float: left;
+  margin: auto;
+  background-color: #ddd; /* fallback color if no image */
+  margin-bottom: 10px; /* Space between profile picture and username */
+}
+
+.divPfp img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.green {
+  color: #4CAF50;
+  font-weight: bold;
+  font-size: 18px;
+  text-align: center;
+}
+
+/* Button styles */
+.btn {
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 100%; /* Full width button */
+  max-width: 200px;
+  transition: background-color 0.3s ease;
+}
+
+.btn-open {
+  background-color: #007BFF;
+  color: white;
+  text-align: center;
+}
+
+.btn-open:hover {
+  background-color: #0056b3;
+}
 section[name="posts"] {
   margin-top: 75px;
 }
@@ -573,4 +652,118 @@ section[name="posts"] {
 .dropdown-button:hover {
   background-color: var(--gray);
   color: var(--black);
+}
+
+
+.post-header{
+  justify-content: space-between;
+}
+
+.post-date{
+  color: var(--heading-color);
+}
+
+/* easter egg code */
+.something {
+  background: linear-gradient(to right, 
+        rgb(237, 34, 36), 
+        rgb(243, 91, 34), 
+        rgb(249, 150, 33), 
+        rgb(245, 193, 30), 
+        rgb(241, 235, 27), 
+        rgb(99, 199, 32), 
+        rgb(12, 155, 73), 
+        rgb(33, 135, 141), 
+        rgb(57, 84, 165), 
+        rgb(97, 55, 155), 
+        rgb(147, 40, 142)
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent; /* fallback for browsers that don't support background-clip */
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  /* Move sidebarUserinfo (Post-Maker) above posts */
+  /* .sidebarUserinfo {
+    position: relative;
+    width: 100%;
+    top: 0;
+    left: 0;
+    margin: 0 auto 20px auto; /* Center it and add spacing below */
+  /* } */
+
+  .posts {
+    padding: 10px;
+    margin-top: 0; /* Adjust to align with post-maker */
+  }
+  .container {
+    flex-direction: column;
+    padding: 0;
+  }
+
+  .sidebarUserinfo {
+    width: 100%;
+    position: relative;
+    top: 0;
+    left: 0;
+    margin: 0;
+  }
+
+  .posts {
+    padding: 10px;
+  }
+
+  .post {
+    width: 100%;
+    margin: 10px 0;
+  }
+
+  .modal {
+    width: 100%;
+    padding: 15px;
+    margin: 0 auto;
+  }
+
+  .dropdown-content {
+    width: 120px;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0 10px;
+  }
+
+  .logo {
+    font-size: 1.1em;
+  }
+
+  header nav ul li a {
+    font-size: 0.9em;
+  }
+
+  .sidebarUserinfo {
+    margin-top: 25%;
+    width: 90%;
+    /* display: none; Hide sidebar on very small screens */
+  }
+  /* .sidebarUserinfo , .post{
+    margin-top: 1px;
+  } */
+
+  .posts {
+    padding: 5px;
+  }
+
+  .post .user-info h3 {
+    font-size: 1em;
+  }
+
+  .dropdown-button {
+    width: 24px;
+    height: 24px;
+  }
 }

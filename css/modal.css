@@ -81,3 +81,53 @@ button {
 .hidden {
   display: none;
 }
+
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .modal {
+    width: 90%; /* Expand to nearly full width on tablets */
+    padding: 1rem;
+    top: 15%; /* Adjust top position to center more on smaller screens */
+    min-height: 200px;
+  }
+
+  .modal p {
+    font-size: 0.85rem;
+  }
+
+  .btn {
+    font-size: 0.9em;
+  }
+
+  .btn-close {
+    top: 5px;
+    right: 5px;
+    font-size: 0.9rem;
+    padding: 0.3rem 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal {
+    width: 90%; /* 90% width on mobile */
+    padding: 1rem;
+    top: 10%; /* Center vertically on mobile */
+    min-height: 180px;
+    z-index: 99;
+  }
+
+  .modal p {
+    font-size: 0.8rem;
+  }
+
+  .btn {
+    font-size: 0.85em;
+    padding: 0.7rem 1rem;
+  }
+
+  .btn-close {
+    font-size: 0.8rem;
+    padding: 0.2rem 0.4rem;
+  }
+}

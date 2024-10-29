@@ -10,8 +10,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $password = $_POST["password"];
         $email1 = $_POST["email"];
 
-        $image = $_FILES["image"]["name"];
-        $tmp_name = $_FILES["image"]["tmp_name"];
+        // $image = $_FILES["image"]["name"];
+        // $tmp_name = $_FILES["image"]["tmp_name"];
+        if (!empty($_FILES["image"]["name"])) {
+            $image = $_FILES["image"]["name"];
+            $tmp_name = $_FILES["image"]["tmp_name"];
+        } else {
+            $image = "avatar.jpg"; // Default image if none uploaded
+            $tmp_name = null; // No need for temporary file for default
+        }
         
         register($username, $email1, $password, $image, $tmp_name);
         disconnect();

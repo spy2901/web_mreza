@@ -5,12 +5,12 @@
  */
 // Function to establish database connection
 function conn()
-{   
+{
     global $conn;
 
     $conn = mysqli_connect("localhost", "root", "root", "social_network");
     if (!$conn) {
-        die("Greska pri konektovanju na bazu ". mysqli_connect_error() ); // Error message if connection fails
+        die("Greska pri konektovanju na bazu " . mysqli_connect_error()); // Error message if connection fails
     }
 }
 
@@ -43,9 +43,9 @@ function register($username, $email, $password, $image, $tmp_name)
     $sqlUpit = "SELECT * FROM users WHERE username = '$sredjenUser'";
     $rezultat = mysqli_query($conn, $sqlUpit);
     if ($rezultat == false) {
-        die('Doslo je do greske pri registraciji korisnika'); // Error message if query fails
+        die('Doslo je do greske pri registraciji korisnika '. mysqli_error($conn)); // Error message if query fails
     }
-    
+
     if (mysqli_num_rows($rezultat) != 0) {
         header("location:index.php"); // Return false if user already exists
     }
@@ -53,10 +53,10 @@ function register($username, $email, $password, $image, $tmp_name)
 
     move_uploaded_file($tmp_name, "images/$image");
 
-    $sqlUpit = "INSERT INTO users VALUES(NULL,'$sredjenUser', '$hashedpassword','$sredjenEmail','" . $image . "')";
+    $sqlUpit = "INSERT INTO users VALUES(NULL,'$sredjenUser', '$hashedpassword','$sredjenEmail',null,'" . $image . "')";
     $rezultat = mysqli_query($conn, $sqlUpit);
     if ($rezultat == false) {
-        die('Doslo je do greske pri registraciji korisnika'); // Error message if query fails
+        die('Doslo je do greske pri registraciji korisnika '. mysqli_error($conn)); // Error message if query fails
     }
     header("location:index.php"); // Redirect to index.php after successful registration
     return true;
@@ -121,7 +121,7 @@ function getUserInfo(string $username)
  * @param string $bio
  * takes every input from form and sends it to the database where it updates the information
  */
-function updateUserInfo(string $username,string $email, string $bio)
+function updateUserInfo(string $username, string $email, string $bio)
 {
     global $conn;
     $sredjenUser = mysqli_real_escape_string($conn, $username);
@@ -141,12 +141,28 @@ function updateUserInfo(string $username,string $email, string $bio)
         return false;
     }
 }
+
+// function getUsernameById($userId) {
+//     global $conn;
+//     $username = null;
+//     $stmt = $conn->prepare("SELECT username FROM users WHERE id = ?");
+//     $stmt->bind_param("i", $userId);
+//     $stmt->execute();
+    
+//     $stmt->bind_result($username);
+//     $stmt->fetch();
+//     $stmt->close();
+    
+//     return $username;
+// }
+
 /**
  * 
  *  get userid function 
  * 
  *
-*/function getUserID($username){
+ */ function getUserID($username)
+{
     global $conn;
 
     $sql = "SELECT id FROM users WHERE username = ?";
@@ -154,16 +170,53 @@ function updateUserInfo(string $username,string $email, string $bio)
     $stmt->bind_param("s", $username);  // Bind username as a string
     $stmt->execute();
     $result = $stmt->get_result();
-    
+
     if ($row = $result->fetch_assoc()) {
         return $row['id'];
     }
-    
+
     return null;  // Return null if user not found
 }
-/*
-*/
-function fetch_following_users($userId){
+/***
+ * 
+ * 
+ * 
+ */
+function suggest_random_users_not_followed($userId, $limit = 1) {
+    global $conn;
+
+    $sql = "
+        SELECT u.id, u.username
+        FROM users u
+        WHERE u.id != ? 
+        AND u.id NOT IN (SELECT following_user_id FROM following WHERE user_id = ?)
+        ORDER BY RAND()
+        LIMIT $limit;
+    ";
+
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ii", $userId, $userId);  // Only bind userId as the limit is directly included
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    $suggestedUsers = [];
+    while ($row = $result->fetch_assoc()) {
+        $suggestedUsers[] = $row;
+    }
+
+    $stmt->close();
+    debug_to_console($suggestedUsers);  // Debug to console
+    return $suggestedUsers;
+}
+
+
+/**
+ * Summary of fetch_following_users
+ * @param mixed $userId
+ * @return array
+ */
+function fetch_following_users($userId)
+{
     global $conn;
 
     // Check if connection is established
@@ -258,7 +311,8 @@ function display_pfp(string $username)
  * @param userTwo username that will be followed by userOne
  * 
  */
-function followUser(string $userOne, string $userTwo){
+function followUser(string $userOne, string $userTwo)
+{
     global $conn;
 
     // Fetch userOne's id
@@ -302,7 +356,8 @@ function followUser(string $userOne, string $userTwo){
     }
 }
 
-function unfollowUser(string $userOne, string $userTwo){
+function unfollowUser(string $userOne, string $userTwo)
+{
     global $conn;
 
     // Fetch userOne's ID
@@ -333,7 +388,8 @@ function unfollowUser(string $userOne, string $userTwo){
 }
 
 
-function checkIfFollowing(string $userOne, string $userTwo) {
+function checkIfFollowing(string $userOne, string $userTwo)
+{
     global $conn;
 
     // Fetch userOne's ID
@@ -407,7 +463,6 @@ function create_post($username, $param1, $param2)
     $rezultat = mysqli_query($conn, $sql);
     if ($rezultat) {
         return true;
-        
     } else {
         return false;
     }
@@ -455,7 +510,7 @@ function get_post()
 //
 
 conn();
-if(isset($_POST['query'])) {
+if (isset($_POST['query'])) {
     $search = isset($_POST['query']) ? $_POST['query'] : ''; // Check if $_POST['query'] is set, otherwise set $search to an empty string
 
     if (!empty($search)) { // Check if $search is not empty
@@ -466,13 +521,16 @@ if(isset($_POST['query'])) {
 
         if ($result) {
             if (mysqli_num_rows($result) > 0) {
-                echo "<form action='findFrend.php' method='post' name='search'>";
+                echo "<form action='findFrend.php' method='post' name='search' class='result'>";
                 while ($row = mysqli_fetch_assoc($result)) {
-                    echo "<input type='submit' name='username' value='".$row['username']."' />";
+                    echo "<div class='resultItem'>";
+                    echo "<input type='submit' name='username' value='" . htmlspecialchars($row['username']) . "' />";
+                    echo "</div>";
+                    echo "<br/>";
                 }
                 echo "</form>";
             } else {
-                echo "<p>No matching users found</p>";
+                echo "<p class='noUser'>No matching users found</p>";
             }
         } else {
             echo "<p>Error executing the query: " . mysqli_error($conn) . "</p>";
@@ -481,3 +539,19 @@ if(isset($_POST['query'])) {
 }
 
 
+
+/**
+ * 
+ * 
+ * SECTION FOR UTILY FUNCTIONS
+ * 
+ * 
+ */
+
+ function debug_to_console($data) {
+    $output = $data;
+    if (is_array($output))
+        $output = implode(',', $output);
+
+    echo "<script>console.log('Debug Objects: " . $output . "' );</script>";
+}

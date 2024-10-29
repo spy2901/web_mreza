@@ -1,30 +1,30 @@
 <?php
-    require_once 'baza.php';
-    session_start();
-    if (!isset($_SESSION['username'])) {
-        header('location: index.php');
-    }
-    // loged user
-    $username = $_SESSION['username'];
-    // user from searchPage.php that user wants to view profile
-    $sent_username = $_POST['username'];
-    conn();
+require_once 'baza.php';
+session_start();
+if (!isset($_SESSION['username'])) {
+    header('location: index.php');
+}
+// loged user
+$username = $_SESSION['username'];
+// user from searchPage.php that user wants to view profile
+$sent_username = $_POST['username'];
+conn();
 
-    // Check if the user is already following the other user
-    $isFollowing = checkIfFollowing($username, $sent_username);
+// Check if the user is already following the other user
+$isFollowing = checkIfFollowing($username, $sent_username);
 
-    // Handle follow/unfollow form submission
-    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-        if (isset($_POST['follow'])) {
-            $result = followUser($username, $sent_username);
-        } elseif (isset($_POST['unfollow'])) {
-            $result = unfollowUser($username, $sent_username);
-        }
-        disconnect();
-        // echo "<script>alert('" . $result . "');</script>";
-        // Refresh page to update button status
-        // echo "<script>location.reload();</script>";
+// Handle follow/unfollow form submission
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    if (isset($_POST['follow'])) {
+        $result = followUser($username, $sent_username);
+    } elseif (isset($_POST['unfollow'])) {
+        $result = unfollowUser($username, $sent_username);
     }
+    disconnect();
+    // echo "<script>alert('" . $result . "');</script>";
+    // Refresh page to update button status
+    // echo "<script>location.reload();</script>";
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -91,31 +91,44 @@
                     // }
                     $count_posts = count_posts($sent_username);
 
-
-                    echo
-                    '<form action="" method="post" id="user">
-              <h2>USERNAME</h2>
-              <h2>EMAIL</h2>
-              <h2> BIOGRAPHY</h2>
-              <input type="text" name="username" value="' . $userInfo["username"] . '" required disabled/>
-              <input type="text" name="email" value="' . $userInfo["email"] . '" required disabled/> 
-              <textarea name="bio" disabled>' . $userInfo['bio'] . '</textarea>
-              <div></div>
-              <div>User Post count:<h2><b>' . $count_posts . '</b></h2></div>
-              
-            </form>
-              </div>';
                     ?>
+                    
+                    <form action="" method="post" id="user">
+                            <div class="input-group">
+                                <label for="username">USERNAME</label>
+
+                                <input type="text" name="username" value="<?php echo $userInfo['username']; ?>" required disabled />
+                            </div>
+                            <div class="input-group">
+                                <label for="email">EMAIL</label>
+                                
+                                <input type="text" name="email" value="<?php echo $userInfo['email']; ?>" required disabled />
+                            </div>
+                            <div class="input-group">
+                                <label for="bio">BIOGRAPHY</label>
+                                <textarea name="bio" disabled><?php echo $userInfo['bio']; ?></textarea>
+                            </div>
+
+                            <!-- <div class="input-group">
+                                <label>User Post Count:</label>
+                                <h2><b><?php echo $count_posts; ?></b></h2>
+                            </div> -->
+                        </form>
+
+
                     <form action="" method="post" id="follow user">
-                    <input type="hidden" name="username" value="<?php echo htmlspecialchars($userInfo['username']); ?>" />
-                    <?php if ($isFollowing): ?>
+                        <input type="hidden" name="username" value="<?php echo htmlspecialchars($userInfo['username']); ?>" />
+                        <?php if ($isFollowing): ?>
                             <!-- If following, show Unfollow button -->
                             <input type="submit" name="unfollow" value="Unfollow User">
-                        <?php else: ?>
-                            <!-- If not following, show Follow button -->
-                            <input type="submit" name="follow" value="Follow User">
-                        <?php endif; ?>
-                    </form>
+                            <?php else: ?>
+                                <!-- If not following, show Follow button -->
+                                <input type="submit" name="follow" value="Follow User">
+                                <?php endif; ?>
+                            </form>
+                            <div>
+                                User Post count: <h2><b><?php echo $count_posts; ?></b></h2>
+                            </div>
                 </div>
         </section>
     </section>

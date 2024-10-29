@@ -1,0 +1,113 @@
+/* Sidebar container */
+.sidebar {
+    margin: auto;
+    width: 250px;
+    background-color: #f8f9fa;
+    border-left: 1px solid #e0e0e0; /* Adjust for the right-side placement */
+    padding: 20px;
+    position: fixed;
+    right: 20%; /* Place it on the right side */
+    top: 10%;
+    height: 30%; /* Full height of the page */
+  }
+  
+  /* Sidebar heading */
+  .sidebar h3 {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    color: #333;
+  }
+  
+  /* User list */
+  #suggestedUsersList {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  #suggestedUsersList li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  
+  #suggestedUsersList li:last-child {
+    border-bottom: none;
+  }
+  
+  /* User link */
+  .suggestedUser {
+    font-size: 1.2rem;
+    color: #007bff;
+    text-decoration: none;
+  }
+  
+  .suggestedUser:hover {
+    text-decoration: underline;
+  }
+  
+  /* Follow button */
+  .followButton {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .followButton:hover {
+    background-color: #218838;
+  }
+  
+  /* Scrollbar style */
+  .sidebar::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .sidebar::-webkit-scrollbar-thumb {
+    background-color: #c0c0c0;
+    border-radius: 10px;
+  }
+  
+  .sidebar::-webkit-scrollbar-thumb:hover {
+    background-color: #888;
+  }
+  
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  /* Move sidebar above posts on mobile */
+  .sidebar {
+    position: relative; /* Change position to flow with the content */
+    width: 90%; /* Full width */
+    /* height: 30%; */
+    right: 0;
+    top: 0; /* Reset top positioning */
+    height: auto; /* Adjust height to fit content */
+    margin: 20px 0 20px 0; /* Add spacing below sidebar */
+    border-left: none; /* Remove left border on mobile */
+    border-bottom: 1px solid #e0e0e0; /* Optional: add a bottom border */
+  }
+
+  .sidebar h3 {
+    font-size: 1.2rem; /* Adjust font size */
+    text-align: center; /* Center align text */
+  }
+
+  #suggestedUsersList li {
+    padding: 10px 5px; /* Adjust padding */
+    flex-direction: column; /* Stack content vertically */
+    align-items: flex-start;
+  }
+
+  .followButton {
+    width: 100%; /* Full width button */
+    text-align: center;
+    padding: 8px 0;
+  }
+}
