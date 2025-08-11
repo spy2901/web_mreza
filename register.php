@@ -1,26 +1,34 @@
 <?php
-   require_once 'baza.php';
- 
-   if ($_SERVER["REQUEST_METHOD"] == "POST") {
-       if ($_POST["password"] == $_POST["pass"]) {
+require_once 'baza.php';
 
-            // Database related code
-           conn();
-           $username = $_POST["username"];
-           $password = $_POST["password"];
-           $email1 = $_POST["email"];
-           
-           $image = $_FILES["image"]["name"];
-           $tmp_name = $_FILES["image"]["tmp_name"];
-           
-           register($username, $email1, $password, $image, $tmp_name);
-           disconnect();
-       }
-   }
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    if ($_POST["password"] == $_POST["pass"]) {
+
+        // Database related code
+        conn();
+        $username = $_POST["username"];
+        $password = $_POST["password"];
+        $email1 = $_POST["email"];
+
+        // $image = $_FILES["image"]["name"];
+        // $tmp_name = $_FILES["image"]["tmp_name"];
+        if (!empty($_FILES["image"]["name"])) {
+            $image = $_FILES["image"]["name"];
+            $tmp_name = $_FILES["image"]["tmp_name"];
+        } else {
+            $image = "avatar.jpg"; // Default image if none uploaded
+            $tmp_name = null; // No need for temporary file for default
+        }
+        
+        register($username, $email1, $password, $image, $tmp_name);
+        disconnect();
+    }
+}
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -31,6 +39,7 @@
     <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 </head>
+
 <body>
     <div class="login">
         <h1>Register</h1>
@@ -43,7 +52,7 @@
             <span id="message"></span><br>
             <!-- Upload Image part next 3 lines -->
             <input type="button" onclick="document.getElementById('getFile').click()" value="Upload your photo" id="buttonid">
-            <input type="file" id="getFile" name="image" accept="image/png, image/jpg, image/jpeg" required style="display: none;">
+            <input type="file" id="getFile" name="image" accept="image/png, image/jpg, image/jpeg" style="display: none;">
             <span class="upload-path" style="color:#ffffff;font-size:16px;"></span>
 
             <button type="submit" class="btn btn-primary btn-block btn-large">Register</button>
@@ -53,4 +62,5 @@
 
     <script src="./js/register.js"></script>
 </body>
+
 </html>

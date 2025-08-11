@@ -1,157 +1,720 @@
 <?php
+/*
+ * Section dedicated to
+ * server configuration
+ */
+// Function to establish database connection
 
-    // Function to establish database connection
-    function conn(){
-        global $conn;
+function conn()
+{
+    global $conn;
 
-        $conn = mysqli_connect("localhost", "root", "", "social_network");
-        if($conn == false){
-            die("Greska pri konektovanju na bazu"); // Error message if connection fails
-        }else{
-            return true;
-        }
+    $conn = mysqli_connect("localhost", "root", "root", "social_network");
+    if (!$conn) {
+        die("Greska pri konektovanju na bazu " . mysqli_connect_error()); // Error message if connection fails
+    }
+}
+
+// Function to disconnect from the database
+function disconnect()
+{
+    global $conn;
+
+    return mysqli_close($conn);
+}
+/*
+ *
+ *       SECTION DEDICATED TO USER AND PROFILE FUNCTIONS
+ *
+ * 
+**/
+
+// Function to register a new user
+function register($username, $email, $password, $image, $tmp_name)
+{
+    global $conn;
+
+    /* Preventing database injection for username, email */
+    $sredjenUser = mysqli_real_escape_string($conn, $username);
+    $sredjenEmail = mysqli_real_escape_string($conn, $email);
+    $sredjenPass = mysqli_real_escape_string($conn, $password);
+
+    $hashedpassword = password_hash($sredjenPass, PASSWORD_ARGON2ID); // Hashing the password using ARGON2ID algorithm
+
+    $sqlUpit = "SELECT * FROM users WHERE username = '$sredjenUser'";
+    $rezultat = mysqli_query($conn, $sqlUpit);
+    if ($rezultat == false) {
+        die('Doslo je do greske pri registraciji korisnika ' . mysqli_error($conn)); // Error message if query fails
     }
 
-    // Function to disconnect from the database
-    function disconnect(){
-        global $conn;
+    if (mysqli_num_rows($rezultat) != 0) {
+        header("location:index.php"); // Return false if user already exists
+        exit;
+    }
+    // Moving uploaded file to 'images/' folder
 
-        return mysqli_close($conn);
+    move_uploaded_file($tmp_name, "images/$image");
+
+    $sqlUpit = "INSERT INTO users VALUES(NULL,'$sredjenUser', '$hashedpassword','$sredjenEmail',null,'" . $image . "')";
+    $rezultat = mysqli_query($conn, $sqlUpit);
+    if ($rezultat == false) {
+        die('Doslo je do greske pri registraciji korisnika ' . mysqli_error($conn)); // Error message if query fails
+    }
+    header("location:index.php"); // Redirect to index.php after successful registration
+    exit;
+}
+function login(string $username, string $password)
+{
+    global $conn;
+
+    session_start(); // Ensure session starts before modifying $_SESSION
+
+    $sredjenUser = mysqli_real_escape_string($conn, $username);
+    $sredjenPass = mysqli_real_escape_string($conn, $password);
+
+    $sql_upit = "SELECT * FROM users WHERE username = '" . $sredjenUser . "'";
+    $rezultat = mysqli_query($conn, $sql_upit);
+
+    if (mysqli_num_rows($rezultat) == 0) {
+        // ✅ Umesto redirekcije, setuj poruku u sesiji
+        $_SESSION['error'] = "User not found in database.";
+        return;
     }
 
-    // Function to register a new user
-    function register($username,$email,$password,$image,$tmp_name){
-        global $conn;
+    $row = mysqli_fetch_assoc($rezultat);
+    $hashedpassword = $row['password'];
 
-        /* Preventing database injection for username, email */
-        $sredjenUser = mysqli_real_escape_string($conn,$username);
-        $sredjenEmail = mysqli_real_escape_string($conn,$email);
-        $sredjenPass = mysqli_real_escape_string($conn,$password);
+    if (password_verify($sredjenPass, $hashedpassword)) {
+        $_SESSION["username"] = $sredjenUser;
+        error_log("Login successful for user: $sredjenUser. Redirecting to home.php.");
+        header("location:home.php");
+        exit;
+    } else {
+        error_log("Login failed: Incorrect password for user '$sredjenUser'.");
+        // ✅ Umesto redirekcije, setuj poruku u sesiji
+        $_SESSION['error'] = "Incorrect password. Please try again.";
+        return;
+    }
+}
 
-        $hashedpassword = password_hash($sredjenPass,PASSWORD_ARGON2ID); // Hashing the password using ARGON2ID algorithm
+/** 
+ * 
+ *  function to get get user information from database
+ *  this function is called only in profile.php to
+ *  display user information.
+ *  takes username thats stored in session so only one user can get information
+ * 
+ **/
+function getUserInfo(string $username)
+{
+    global $conn;
+    $sredjenUser = mysqli_real_escape_string($conn, $username);
 
-        // Moving uploaded file to 'images/' folder
-        move_uploaded_file($tmp_name,"images/$image");
+    $sql = "SELECT * FROM users WHERE username = '$sredjenUser'";
+    $result = mysqli_query($conn, $sql);
 
-        $sqlUpit = "SELECT * FROM users WHERE username = '$sredjenUser'";
-        $rezultat = mysqli_query($conn, $sqlUpit);
-        if ($rezultat == false) {
-            die('Doslo je do greske pri registraciji korisnika'); // Error message if query fails
-        }
+    return mysqli_fetch_assoc($result);
+}
 
-        if (mysqli_num_rows($rezultat) != 0) {
-            return false; // Return false if user already exists
-        }
+/**
+ * 
+ * @param string $username,
+ * @param string $email,
+ * @param string $bio
+ * takes every input from form and sends it to the database where it updates the information
+ */
+function updateUserInfo(string $username, string $email, string $bio)
+{
+    global $conn;
+    $sredjenUser = mysqli_real_escape_string($conn, $username);
+    $sredjenEmail = mysqli_real_escape_string($conn, $email);
+    $sredjenBio = mysqli_real_escape_string($conn, $bio);
 
-        $sqlUpit = "INSERT INTO users VALUES(NULL,'$sredjenUser', '$hashedpassword','$sredjenEmail','$image')";
-        $rezultat = mysqli_query($conn, $sqlUpit);
-        if ($rezultat == false) {
-            die('Doslo je do greske pri registraciji korisnika'); // Error message if query fails
-        }
-        header("location:index.php"); // Redirect to index.php after successful registration
+    $sql = "UPDATE users SET username = '" . $sredjenUser . "',email='" . $sredjenEmail . "',bio='" . $sredjenBio . "'WHERE username='" . $sredjenUser . "';";
+
+    $result = mysqli_query($conn, $sql);
+    if ($result) {
         return true;
+    } else {
+        echo "<script>console.log('ne ce da radi :(</script>";
+        return false;
+    }
+}
+
+// function getUsernameById($userId) {
+//     global $conn;
+//     $username = null;
+//     $stmt = $conn->prepare("SELECT username FROM users WHERE id = ?");
+//     $stmt->bind_param("i", $userId);
+//     $stmt->execute();
+
+//     $stmt->bind_result($username);
+//     $stmt->fetch();
+//     $stmt->close();
+
+//     return $username;
+// }
+
+/**
+ * 
+ *  get userid function 
+ * 
+ *
+ */ function getUserID($username)
+{
+    global $conn;
+
+    $sql = "SELECT id FROM users WHERE username = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $username);  // Bind username as a string
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($row = $result->fetch_assoc()) {
+        return $row['id'];
     }
 
-    /* Login function */
-    function login($username,$password){
-        global $conn;
+    return null;  // Return null if user not found
+}
+/**
+ *  FUNCTION TO GET FOLLOWERS COUNT 
+ *  FUNTION WORKS 
+ * 
+ */
+function getFollowersNumber($userId)
+{
+    global $conn;
+    $userId = htmlspecialchars($userId);
+    $sql = "SELECT COUNT(*) AS follower_count FROM following WHERE `following_user_id` = '$userId'";
+    $result = mysqli_query($conn, $sql);
+    $row  = mysqli_fetch_assoc($result);
+    return $row['follower_count'] ?? 0; // if there is followers return follower_count if none return 0
+}
+function getFollowingNumber($userId)
+{
+    global $conn;
+    $userId = htmlspecialchars($userId);
+    $sql = "SELECT COUNT(*) AS follower_count FROM following WHERE `user_id` = '$userId'";
+    $result = mysqli_query($conn, $sql);
+    $row  = mysqli_fetch_assoc($result);
+    return $row['follower_count'] ?? 0; // if there is followers return follower_count if none return 0
+}
 
-        /* Preventing database injection */
-        $sredjenUser = mysqli_real_escape_string($conn,$username);
-        $sredjenPass = mysqli_real_escape_string($conn,$password);
+/***
+ * 
+ * FUNCTION : To sugest random users that user is not following 
+ * 
+ */
+function suggest_random_users_not_followed($userId, $limit = 1)
+{
+    global $conn;
 
-        $hashedpassword = password_hash($sredjenPass,PASSWORD_ARGON2ID); // Hashing the password using ARGON2ID algorithm
+    $sql = "
+        SELECT u.id, u.username
+        FROM users u
+        WHERE u.id != ? 
+        AND u.id NOT IN (SELECT following_user_id FROM following WHERE user_id = ?)
+        ORDER BY RAND()
+        LIMIT $limit;
+    ";
 
-        $sql_upit = "SELECT * FROM users WHERE username = '".$sredjenUser."' and password = '".$hashedpassword."' ";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ii", $userId, $userId);  // Only bind userId as the limit is directly included
+    $stmt->execute();
+    $result = $stmt->get_result();
 
-        $rezultat = mysqli_query($conn,$sql_upit);
+    $suggestedUsers = [];
+    while ($row = $result->fetch_assoc()) {
+        $suggestedUsers[] = $row;
+    }
 
-        if (mysqli_num_rows($rezultat) == 0) {
-            // If the user does not exist, display an error message
-            echo "<script>alert('user not found in database');</script>";
+    $stmt->close();
+    // debug_to_console($suggestedUsers);  // Debug to console
+    return $suggestedUsers;
+}
+
+
+/**
+ * Summary of fetch_following_users
+ * @param mixed $userId
+ * @return array
+ */
+function fetch_following_users($userId)
+{
+    global $conn;
+
+    // Check if connection is established
+    if ($conn === null) {
+        die("Database connection not established.");
+    }
+
+    $stmt = $conn->prepare("
+        SELECT u.id, u.username 
+        FROM following f 
+        JOIN users u ON f.following_user_id = u.id 
+        WHERE f.user_id = ?
+    ");
+
+    // Check if prepare() succeeded
+    if ($stmt === false) {
+        die("SQL Prepare failed: (" . $conn->errno . ") " . $conn->error);
+    }
+
+    $stmt->bind_param("i", $userId);  // Now using user ID instead of username
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    $followedUsers = [];
+    while ($row = $result->fetch_assoc()) {
+        $followedUsers[] = $row; // Store followed user's id and username
+    }
+
+    $stmt->close();
+    return $followedUsers;
+}
+
+/**
+ * Delete user function
+ * delete user from database takes 
+ */
+function delete_user($username)
+{
+    // global $conn;
+    // $sqlUpit =  "select id from users where username='" . $username . "'";
+    // $userid = mysqli_query($conn, $sqlUpit);
+    // $userid1 = strval($userid);
+    // $sqlUpit = "delete from posts where postcreator = '$userid1 '";
+    // $result = mysqli_query($conn, $sqlUpit);
+    // if ($result) {
+    //     $sql = "delete from users where username='" . $username . "'";
+    //     $result = mysqli_query($conn, $sql);
+    //     header("Location:logout.php");
+    //     exit;
+    // } else {
+    //     exit;
+    // }
+    global $conn;
+
+    if (!$conn) {
+        die("Database connection failed: " . mysqli_connect_error());
+    }
+
+    // Prepare the first query
+    $sqlUpit = "SELECT id FROM users WHERE username = ?";
+    $stmt = $conn->prepare($sqlUpit);
+
+    if (!$stmt) {
+        die("Prepare failed (SELECT id): (" . $conn->errno . ") " . $conn->error);
+    }
+
+    $stmt->bind_param("s", $username);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $user = $result->fetch_assoc();
+
+    if ($user) {
+        $userid1 = $user['id'];
+
+        $sqlUpit = "DELETE FROM posts WHERE postcreator = ?";
+        $stmt = $conn->prepare($sqlUpit);
+
+        if (!$stmt) {
+            die("Prepare failed (DELETE posts): (" . $conn->errno . ") " . $conn->error);
         }
 
-        $sql_upit = "SELECT image FROM users WHERE username = '".$sredjenUser."' and password = '".$hashedpassword."' ";
-        $image1 = mysqli_query($conn,$sql_upit);
-        $_SESSION['img'] = $image1; // Store the image from the database in session
-        $_SESSION["username"] = $username; // Store the username in session
-        header("location:home.php"); // Redirect to home.php after successful login
+        $stmt->bind_param("i", $userid1);
+        $stmt->execute();
+        $sql = "SELECT image FROM users where username = ?";
+        $stmt = $conn->prepare($sql);
+
+        if (!$stmt) {
+            die("Prepare failed (DELETE users): (" . $conn->errno . ") " . $conn->error);
+        }
+
+        $stmt->bind_param("s", $username);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        $followedUsers = [];
+        while ($row = $result->fetch_assoc()) {
+            unlink("images/" . $row['image']);
+        }
+
+        $sql = "DELETE FROM users WHERE username = ?";
+        $stmt = $conn->prepare($sql);
+
+        if (!$stmt) {
+            die("Prepare failed (DELETE users): (" . $conn->errno . ") " . $conn->error);
+        }
+
+        $stmt->bind_param("s", $username);
+        $stmt->execute();
+
+
+        header("Location: logout.php");
+        exit;
+    } else {
+        exit;
+    }
+}
+/**
+ * 
+ * Count of posts made by user
+ * takes $username as parameter
+ */
+function count_posts(string $username)
+{
+    global $conn;
+    $sredjenUser = mysqli_real_escape_string($conn, $username);
+
+    $sql = "select count(*) as post_count
+    from posts p 
+    inner join users u on p.post_creator = u.id 
+    where u.username = '$sredjenUser';";
+
+    $result = mysqli_query($conn, $sql);
+
+    $row = mysqli_fetch_assoc($result);
+
+    return $row['post_count'];
+}
+/* Profile picture function */
+// Takes the username from the session as a parameter
+function display_pfp(string $username)
+{
+
+    global $conn;
+    $sqlimage = "SELECT * FROM users WHERE username='$username'";
+    $imageresult1 = mysqli_query($conn, $sqlimage);
+
+    while ($row = mysqli_fetch_assoc($imageresult1)) {
+        echo "<img src='./images/" . $row['image'] . "' class='pfp' alt='slika nije ucitana'>";
+    }
+    return "";
+}
+function fetch_pfp_path(string $username)
+{
+    global $conn;
+    $sqlimage = "SELECT image FROM users WHERE username='$username'";
+    $result = mysqli_query($conn, $sqlimage);
+    if ($row = mysqli_fetch_assoc($result)) {
+        return './images/' . $row['image'];
+    }
+    return './images/avatar.jpg'; // Fallback image
+}
+
+/**
+ * 
+ * @param userOne username who wants to follow
+ * @param userTwo username that will be followed by userOne
+ * 
+ */
+function followUser(string $userOne, string $userTwo)
+{
+    global $conn;
+
+    // Fetch userOne's id
+    $userOne = mysqli_real_escape_string($conn, $userOne);
+    $sqlUpit = "SELECT id FROM users WHERE username='" . mysqli_real_escape_string($conn, $userOne) . "'";
+    $result1 = mysqli_query($conn, $sqlUpit);
+
+    if (getUserID($userOne)) {
+        $row1 = mysqli_fetch_assoc($result1);
+        $userid1 = $row1['id'];
+    } else {
+        // Handle case when userOne does not exist
+        return "UserOne does not exist.";
+    }
+
+    // Fetch userTwo's id
+    $sqlUpit = "SELECT id FROM users WHERE username='" . mysqli_real_escape_string($conn, $userTwo) . "'";
+    $result2 = mysqli_query($conn, $sqlUpit);
+
+    if (mysqli_num_rows($result2) > 0) {
+        $row2 = mysqli_fetch_assoc($result2);
+        $userid2 = $row2['id'];
+    } else {
+        // Handle case when userTwo does not exist
+        return "UserTwo does not exist.";
+    }
+
+    // Check if the user is already following the other user
+    $sqlUpit = "SELECT * FROM following WHERE user_id='$userid1' AND following_user_id='$userid2'";
+    $result = mysqli_query($conn, $sqlUpit);
+    if (mysqli_num_rows($result) > 0) {
+        return "You are already following this user.";
+    }
+
+    // Insert new follow entry if not already following
+    $sqlUpit = "INSERT INTO following (user_id, following_user_id) VALUES ('$userid1', '$userid2')";
+    if (mysqli_query($conn, $sqlUpit)) {
+        return "Successfully followed " . $userTwo . ".";
+    } else {
+        return "Error: " . mysqli_error($conn);
+    }
+}
+
+function unfollowUser(string $userOne, string $userTwo)
+{
+    global $conn;
+
+    // Fetch userOne's ID
+    $sqlUpit = "SELECT id FROM users WHERE username='" . mysqli_real_escape_string($conn, $userOne) . "'";
+    $result1 = mysqli_query($conn, $sqlUpit);
+    if ($row1 = mysqli_fetch_assoc($result1)) {
+        $userid1 = $row1['id'];
+    } else {
+        return "UserOne does not exist.";
+    }
+
+    // Fetch userTwo's ID
+    $sqlUpit = "SELECT id FROM users WHERE username='" . mysqli_real_escape_string($conn, $userTwo) . "'";
+    $result2 = mysqli_query($conn, $sqlUpit);
+    if ($row2 = mysqli_fetch_assoc($result2)) {
+        $userid2 = $row2['id'];
+    } else {
+        return "UserTwo does not exist.";
+    }
+
+    // Delete from the following table
+    $sqlUpit = "DELETE FROM following WHERE user_id='$userid1' AND following_user_id='$userid2'";
+    if (mysqli_query($conn, $sqlUpit)) {
+        return "Unfollowed UserTwo successfully.";
+    } else {
+        return "Error: " . mysqli_error($conn);
+    }
+}
+
+
+function checkIfFollowing(string $userOne, string $userTwo)
+{
+    global $conn;
+
+    // Fetch userOne's ID
+    $sqlUpit = "SELECT id FROM users WHERE username='" . mysqli_real_escape_string($conn, $userOne) . "'";
+    $result1 = mysqli_query($conn, $sqlUpit);
+    if ($row1 = mysqli_fetch_assoc($result1)) {
+        $userid1 = $row1['id'];
+    } else {
+        return false; // UserOne not found
+    }
+
+    // Fetch userTwo's ID
+    $sqlUpit = "SELECT id FROM users WHERE username='" . mysqli_real_escape_string($conn, $userTwo) . "'";
+    $result2 = mysqli_query($conn, $sqlUpit);
+    if ($row2 = mysqli_fetch_assoc($result2)) {
+        $userid2 = $row2['id'];
+    } else {
+        return false; // UserTwo not found
+    }
+
+    // Check if userOne is following userTwo
+    $sqlUpit = "SELECT * FROM following WHERE user_id='$userid1' AND following_user_id='$userid2'";
+    $result = mysqli_query($conn, $sqlUpit);
+
+    return mysqli_num_rows($result) > 0; // Returns true if the user is already following
+}
+
+// function searchUser($search)
+// {
+//     global $conn;
+
+//     // Search query
+//     $sql = "SELECT * FROM users WHERE username LIKE '%$search%'";
+//     $result = $conn->query($sql);
+
+//     $users = array(); // Array to hold search results
+
+//     if ($result->num_rows > 0) {
+//         while ($row = $result->fetch_assoc()) {
+//             $users[] = $row; // Add user to results array
+//         }
+//     }
+
+//     $conn->close();
+
+//     return $users;
+// }
+/*
+    *
+    * 
+    *   SECTION DEDACTED FOR POST FUNCTIONS
+    *
+*/
+// Function to create a new post
+function create_post($username, $param1, $param2)
+{
+    global $conn;
+    // Sanitize the input data to prevent SQL injection attacks
+    $naslov = mysqli_real_escape_string($conn, $param1);
+    $postdesc = mysqli_real_escape_string($conn, $param2);
+    $date = date('Y-m-d');
+
+    $sqlQuerry = "SELECT id FROM `users` WHERE username='$username'";
+    $rezultat = mysqli_query($conn, $sqlQuerry);
+    if ($rezultat) {
+        $row = mysqli_fetch_assoc($rezultat);
+        $userid = $row['id'];
+    }
+    // Insert the post data into the database
+    $sql = "INSERT INTO posts VALUES (NULL,'$userid', '$postdesc','$date','$naslov')";
+    $rezultat = mysqli_query($conn, $sql);
+    if ($rezultat) {
         return true;
+    } else {
+        return false;
     }
+}
+/* 
+*
+* function to delete post taking only post_id
+*/
+function delete_post($id)
+{
+    global $conn;
+    $postID = mysqli_real_escape_string($conn, $id);
 
-    /* Profile picture function */
-    // Takes the username from the session as a parameter
-    function display_pfp($username){
-        global $conn;
-        $sqlimage = "SELECT * FROM users WHERE username='$username'";
-        $imageresult1 = mysqli_query($conn,$sqlimage);
+    $sql = "DELETE FROM posts WHERE id= ?";
+    $stmt = mysqli_prepare($conn, $sql);
+    mysqli_stmt_bind_param($stmt, "i", $postID);
+    $rezultat = mysqli_stmt_execute($stmt);
 
-        while($row = mysqli_fetch_assoc($imageresult1))
-        {       
-            echo "<img src='images/".$row['image']."' class='pfp' alt='slika nije ucitana'>"; 
-        }
-        return "";
+    if ($rezultat) {
+        return true;
+    } else {
+        return false;
     }
+}
 
-    // Function to create a new post
-    function create_post($username, $param1, $param2) {
-        global $conn;
-        // Sanitize the input data to prevent SQL injection attacks
-        $naslov = mysqli_real_escape_string($conn, $param1);
-        $postdesc = mysqli_real_escape_string($conn, $param2);
-        $date = date('Y-m-d');
-        
-        $sqlQuerry = "SELECT id FROM `users` WHERE username='$username'";
-        $rezultat = mysqli_query($conn,$sqlQuerry);
-        if($rezultat){
-            $row = mysqli_fetch_assoc($rezultat);
-            $userid = $row['id'];
-        }
-        // Insert the post data into the database
-        $sql = "INSERT INTO posts VALUES (NULL,'$userid', '$postdesc','$date','$naslov')";
-        $rezultat = mysqli_query($conn,$sql);
-        if ($rezultat) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-    /* function to delete post 
-        taking only post_id
-    */
-    function delete_post($id) {
-        global $conn;
-        // Sanitize the input data to prevent SQL injection attacks
-        $postID = mysqli_real_escape_string($conn, $id);
-       
-        $sql = "DELETE FROM posts WHERE id= '$postID'";
-        $rezultat = mysqli_query($conn,$sql);
-        if ($rezultat) {
-           return true;
-            // echo "<script>console.log('200')</script>";
-        } else {
-            return false;
-        }
-    }
-
-    /*
+/*
         Function to fetch all posts in database
         simple yet effective
         no parameters required
     */
-    function get_post(){
-        global $conn;
-        // sql Querry to get username from table users and everithing from table posts
-        $sqlQuerry = "SELECT users.username, posts.* FROM users JOIN posts ON users.id = posts.post_creator;";
-        
-        $rezultat = mysqli_query($conn, $sqlQuerry);
-        
-        if($rezultat == false){
-            die('Greska pri dohvatanju svih korisnika' . mysqli_error($conn));
-        }
-        
-        return mysqli_fetch_all($rezultat, MYSQLI_ASSOC);
-        
+function get_post()
+{
+    global $conn;
+    // sql Querry to get username from table users and everithing from table posts
+    $sqlQuerry = "SELECT users.username, posts.* FROM users JOIN posts ON users.id = posts.post_creator Order by posts.date desc;";
+
+    $rezultat = mysqli_query($conn, $sqlQuerry);
+
+    if ($rezultat == false) {
+        die('Greska pri dohvatanju svih korisnika' . mysqli_error($conn));
     }
-    
-?>
+
+    return mysqli_fetch_all($rezultat, MYSQLI_ASSOC);
+}
+// search functionality
+
+conn();
+if (isset($_POST['query'])) {
+    $search = isset($_POST['query']) ? $_POST['query'] : ''; // Check if $_POST['query'] is set, otherwise set $search to an empty string
+
+    if (!empty($search)) { // Check if $search is not empty
+        // SQL query to search for users
+        $sql = "SELECT * FROM users WHERE username LIKE '%$search%'";
+
+        $result = mysqli_query($conn, $sql);
+
+        if ($result) {
+            if (mysqli_num_rows($result) > 0) {
+                echo "<form action='findFrend.php' method='post' name='search' class='result'>";
+                while ($row = mysqli_fetch_assoc($result)) {
+                    echo "<div class='resultItem'>";
+                    echo "<input type='submit' name='username' value='" . htmlspecialchars($row['username']) . "' />";
+                    echo "</div>";
+                    echo "<br/>";
+                }
+                echo "</form>";
+            } else {
+                echo "<p class='noUser'>No matching users found</p>";
+            }
+        } else {
+            echo "<p>Error executing the query: " . mysqli_error($conn) . "</p>";
+        }
+    }
+}
+
+// Function to like a post
+function like_post($user_id, $post_id)
+{
+    global $conn;
+
+    $post_id = mysqli_real_escape_string($conn, $post_id);
+    $user_id = mysqli_real_escape_string($conn, $user_id);
+
+    $checkQuery = "SELECT 1 FROM likes WHERE post_id = '$post_id' AND user_id = '$user_id' LIMIT 1";
+    $checkResult = mysqli_query($conn, $checkQuery);
+
+    if (mysqli_num_rows($checkResult) == 0) {
+        return mysqli_query($conn, "INSERT INTO likes (post_id, user_id) VALUES ('$post_id', '$user_id')");
+    }
+    return true; // već lajkovano, ali stanje je OK
+}
+
+// Function to unlike a post
+function unlike_post($user_id, $post_id)
+{
+    global $conn;
+
+    $post_id = mysqli_real_escape_string($conn, $post_id);
+    $user_id = mysqli_real_escape_string($conn, $user_id);
+
+    $sql = "DELETE FROM likes WHERE post_id = '$post_id' AND user_id = '$user_id'";
+    return mysqli_query($conn, $sql);
+}
+
+// Function to fetch like count for a post
+function get_like_count($post_id)
+{
+    global $conn;
+
+    $post_id = mysqli_real_escape_string($conn, $post_id);
+    $sql = "SELECT COUNT(*) as like_count FROM likes WHERE post_id = '$post_id'";
+    $result = mysqli_query($conn, $sql);
+    $data = mysqli_fetch_assoc($result);
+    return $data['like_count'];
+}
+
+/**
+ * Check if a user has liked a specific post
+ *
+ * @param int $user_id The ID of the user
+ * @param int $post_id The ID of the post
+ * @return bool True if the user has liked the post, false otherwise
+ */
+function is_post_liked($user_id, $post_id)
+{
+    global $conn; // Assuming $conn is your database connection
+
+    // SQL query to check if the user has liked the post
+    $query = "SELECT COUNT(*) AS count 
+              FROM likes 
+              WHERE user_id = ? AND post_id = ?";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param('ii', $user_id, $post_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $data = $result->fetch_assoc();
+
+    // Return true if at least one record exists, false otherwise
+    return $data['count'] > 0;
+}
+
+/**
+ * 
+ * 
+ * SECTION FOR UTILY FUNCTIONS
+ * 
+ * 
+ */
+
+function debug_to_console($data)
+{
+    $output = $data;
+    if (is_array($output))
+        $output = implode(',', $output);
+
+    echo "<script>console.log('Debug Objects: " . $output . "' );</script>";
+}

@@ -37,11 +37,13 @@ textarea.addEventListener('input', () => {
   const length = textarea.value.length;
   lengthSpan.innerText = length;
 });
-/* Post DropDrown */
-document.getElementById("delete_post").addEventListener("click", function(event) {
-  event.preventDefault(); // Prevent the link from navigating
-  
-  // Find the form and submit it
-  var form = document.getElementById("myForm");
-  form.submit();
+
+document.querySelectorAll("#delete_post").forEach(function(button) {
+  button.addEventListener("click", function(event) {
+      event.preventDefault(); // Prevent the link from navigating
+
+      // Find the form associated with this delete button
+      var form = button.closest(".post").querySelector("form");
+      form.submit();
+  });
 });
